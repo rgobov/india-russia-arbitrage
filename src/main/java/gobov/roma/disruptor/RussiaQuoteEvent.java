@@ -1,10 +1,10 @@
-package gobov.roma.russia.disruptor;
+package gobov.roma.disruptor;
 
 import lombok.Data;
 import java.util.List;
 
 @Data
-public class QuoteEvent {
+public class RussiaQuoteEvent extends BaseQuoteEvent {
     private String symbol;
     private String exchange;
     private boolean snapshot;

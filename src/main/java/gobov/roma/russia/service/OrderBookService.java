@@ -26,12 +26,17 @@ public class OrderBookService {
         this.virtualThreadExecutor = virtualThreadExecutor;
     }
 
-    @Transactional
+
     public void saveOrderBook(OrderBookDTO dto) {
         virtualThreadExecutor.execute(() -> {
-            OrderBook orderBook = mapDtoToEntity(dto);
-            orderBookRepository.save(orderBook);
+            saveOrderBookTransactional(dto);
         });
+    }
+
+    @Transactional
+    protected void saveOrderBookTransactional(OrderBookDTO dto) {
+        OrderBook orderBook = mapDtoToEntity(dto);
+        orderBookRepository.save(orderBook);
     }
 
     private OrderBook mapDtoToEntity(OrderBookDTO dto) {

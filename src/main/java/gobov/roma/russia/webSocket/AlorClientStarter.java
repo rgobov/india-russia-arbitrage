@@ -1,6 +1,5 @@
 package gobov.roma.russia.webSocket;
 
-
 import jakarta.annotation.PostConstruct;
 import org.springframework.stereotype.Component;
 
@@ -15,6 +14,6 @@ public class AlorClientStarter {
 
     @PostConstruct
     public void start() {
-        webSocketClient.connectToAlor();
+        // Можно добавить логирование или другую инициализацию, если нужно
     }
 }

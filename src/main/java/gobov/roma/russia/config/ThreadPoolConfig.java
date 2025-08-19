@@ -19,4 +19,9 @@ public class ThreadPoolConfig {
     public ScheduledExecutorService scheduledVirtualThreadExecutor() {
         return Executors.newScheduledThreadPool(0, Thread.ofVirtual().factory());
     }
+//
+//    @Bean
+//    public ExecutorService threadPoolExecutor() {
+//        return Executors.newFixedThreadPool(10);
+//    }
 }
