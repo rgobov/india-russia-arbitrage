@@ -1,4 +1,4 @@
-package gobov.roma.russia.disraptor;
+package gobov.roma.russia.disruptor;
 
 import lombok.Data;
 

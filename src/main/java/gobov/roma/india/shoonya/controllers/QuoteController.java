@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/quotes")
+@RequestMapping("/api/v1/")
 public class QuoteController {
 
     private final Logger logger = LoggerFactory.getLogger(QuoteController.class);
@@ -26,7 +26,7 @@ public class QuoteController {
         this.quoteService = quoteService;
     }
 
-    @PostMapping("/batch")
+    @PostMapping("/shoonya")
     public ResponseEntity<String> receiveQuotes(@RequestBody List<Quote> quotes) {
         Instant start = Instant.now();
         int savedCount = quoteService.saveQuotes(quotes);
