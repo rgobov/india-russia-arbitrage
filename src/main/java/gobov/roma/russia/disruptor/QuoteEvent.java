@@ -1,11 +1,13 @@
 package gobov.roma.russia.disruptor;
 
+import gobov.roma.russia.dto.LevelDTO;
+
 public final class QuoteEvent {
     public String symbol;
     public String exchange;
     public boolean snapshot;
-    public QuoteLevel[] bids;
-    public QuoteLevel[] asks;
+    public LevelDTO[] bids;
+    public LevelDTO[] asks;
     public int bidCount;
     public int askCount;
     public long timestamp;
@@ -14,11 +16,11 @@ public final class QuoteEvent {
     public String guid;
 
     public QuoteEvent(int maxLevels) {
-        bids = new QuoteLevel[maxLevels];
-        asks = new QuoteLevel[maxLevels];
+        bids = new LevelDTO[maxLevels];
+        asks = new LevelDTO[maxLevels];
         for (int i = 0; i < maxLevels; i++) {
-            bids[i] = new QuoteLevel();
-            asks[i] = new QuoteLevel();
+            bids[i] = new LevelDTO();
+            asks[i] = new LevelDTO();
         }
     }
 

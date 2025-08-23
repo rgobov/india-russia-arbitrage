@@ -5,8 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lmax.disruptor.RingBuffer;
 import com.lmax.disruptor.dsl.Disruptor;
 import gobov.roma.russia.disruptor.QuoteEvent;
-import gobov.roma.russia.disruptor.QuoteLevel;
 import gobov.roma.russia.config.AlorProperties;
+import gobov.roma.russia.dto.LevelDTO;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import org.java_websocket.client.WebSocketClient;
@@ -299,7 +299,7 @@ public class AlorWebSocketClient extends WebSocketClient {
     }
 
     // Добавляем новый метод convertToLevelsArray
-    private int convertToLevelsArray(JsonNode levelsNode, QuoteLevel[] destination) {
+    private int convertToLevelsArray(JsonNode levelsNode, LevelDTO[] destination) {
         if (levelsNode == null || !levelsNode.isArray() || levelsNode.isEmpty()) {
             return 0;
         }
@@ -307,7 +307,7 @@ public class AlorWebSocketClient extends WebSocketClient {
         int size = Math.min(levelsNode.size(), destination.length);
         for (int i = 0; i < size; i++) {
             JsonNode node = levelsNode.get(i);
-            QuoteLevel level = destination[i];
+            LevelDTO level = destination[i];
 
             String priceStr = node.get("price").asText();
             try {
