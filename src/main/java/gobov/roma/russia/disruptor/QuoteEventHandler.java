@@ -8,16 +8,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import java.time.Instant;
-import java.util.List;
-import java.util.stream.Collectors;
 
+import java.time.Instant;
 
 @Component
 public class QuoteEventHandler implements EventHandler<QuoteEvent> {
-
     private final OrderBookService orderBookService;
-    Logger logger = LoggerFactory.getLogger(QuoteEventHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(QuoteEventHandler.class);
+
+    private static final int MAX_LEVELS = 10;
+    private final ThreadLocal<OrderBookDTO> dtoThreadLocal =
+            ThreadLocal.withInitial(() -> new OrderBookDTO(MAX_LEVELS));
 
     @Autowired
     public QuoteEventHandler(OrderBookService orderBookService) {
@@ -27,33 +28,34 @@ public class QuoteEventHandler implements EventHandler<QuoteEvent> {
     @Override
     public void onEvent(QuoteEvent event, long sequence, boolean endOfBatch) {
         try {
-            logger.info("Обработано событие: " + "в методе QuoteEvent объекта QuoteEventHandler");
-            if (event == null) return;
+            if (event == null || event.bidCount == 0 && event.askCount == 0) return;
 
-            OrderBookDTO dto = new OrderBookDTO();
-            dto.setSymbol(event.getSymbol());
-            dto.setExchange(event.getExchange());
-            dto.setTimestamp(Instant.ofEpochMilli(event.getMsTimestamp()));
+            OrderBookDTO dto = dtoThreadLocal.get();
+            dto.clear();
 
-            // Маппинг уровней с конвертацией в BigDecimal
-            dto.setBids(mapLevels(event.getBids()));
-            dto.setAsks(mapLevels(event.getAsks()));
-            logger.info("Обработано событие: " + dto.getSymbol() + " " + "в объекте QuoteEventHandler");
+            dto.symbol = event.symbol;
+            dto.exchange = event.exchange;
+            dto.timestamp = Instant.ofEpochMilli(event.msTimestamp);
+
+            // Копируем биды
+            dto.bidCount = event.bidCount;
+            for (int i = 0; i < event.bidCount; i++) {
+                dto.bids[i].set(event.bids[i].price, event.bids[i].volume);
+            }
+
+            // Копируем аски
+            dto.askCount = event.askCount;
+            for (int i = 0; i < event.askCount; i++) {
+                dto.asks[i].set(event.asks[i].price, event.asks[i].volume);
+            }
 
             orderBookService.saveOrderBook(dto);
         } catch (Exception e) {
-            System.err.println("Ошибка обработки события: " + e.getMessage());
+            logger.error("Ошибка обработки события", e);
         } finally {
-            event.clear();
+            if (event != null) {
+                event.clear();
+            }
         }
-    }
-
-    private List<LevelDTO> mapLevels(List<QuoteLevel> levels) {
-        return levels.stream().map(level -> {
-            LevelDTO dto = new LevelDTO();
-            dto.setPrice(level.getPrice()); // Уже BigDecimal
-            dto.setVolume(level.getVolume());
-            return dto;
-        }).collect(Collectors.toList());
     }
 }

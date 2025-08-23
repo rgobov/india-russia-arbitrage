@@ -1,11 +1,18 @@
 package gobov.roma.russia.disruptor;
 
-import lombok.Data;
-
 import java.math.BigDecimal;
 
-@Data
-public class QuoteLevel {
-    private BigDecimal price;
-    private long volume; // Изменено с int на long
+public final class QuoteLevel {
+    public BigDecimal price;
+    public long volume;
+
+    public void set(BigDecimal price, long volume) {
+        this.price = price;
+        this.volume = volume;
+    }
+
+    public void clear() {
+        price = null;
+        volume = 0L;
+    }
 }

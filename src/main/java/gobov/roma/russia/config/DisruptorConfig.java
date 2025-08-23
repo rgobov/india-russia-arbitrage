@@ -28,17 +28,18 @@ public class DisruptorConfig {
     @Value("${disruptor.producer-type:multi}")
     private String producerType;
 
+    @Value("${disruptor.max-levels:10}") // Добавляем новое свойство
+    private int maxLevels;
+
     @Bean
     public QuoteEventFactory eventFactory() {
-        return new QuoteEventFactory();
+        return new QuoteEventFactory(maxLevels); // Передаем maxLevels в фабрику
     }
-
 
     @Bean(destroyMethod = "shutdown")
     public Disruptor<QuoteEvent> disruptor(
             QuoteEventFactory factory,
-            QuoteEventHandler handler,
-            ExecutorService virtualThreadExecutor) { // Внедряем общий бин
+            QuoteEventHandler handler) {
 
         WaitStrategy selectedStrategy;
         switch (waitStrategy.toLowerCase()) {
@@ -55,7 +56,7 @@ public class DisruptorConfig {
         Disruptor<QuoteEvent> disruptor = new Disruptor<>(
                 factory,
                 ringBufferSize,
-                executor, // Используем одиночный поток
+                executor,
                 type,
                 selectedStrategy
         );

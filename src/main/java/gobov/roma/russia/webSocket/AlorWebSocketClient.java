@@ -266,25 +266,31 @@ public class AlorWebSocketClient extends WebSocketClient {
         boolean existing = !data.has("existing") || data.get("existing").asBoolean();
         long timestamp = data.has("timestamp") ? data.get("timestamp").asLong() : 0L;
         long msTimestamp = data.has("ms_timestamp") ? data.get("ms_timestamp").asLong() : System.currentTimeMillis();
-        String exchange = "MOEX"; // Явное указание биржи
+        String exchange = "MOEX";
 
-        List<QuoteLevel> bids = convertToLevels(data.get("bids"));
-        List<QuoteLevel> asks = convertToLevels(data.get("asks"));
-
-        if (bids.isEmpty() && asks.isEmpty()) return;
-
+        // Получаем sequence из RingBuffer
         long sequence = ringBuffer.next();
         try {
             QuoteEvent event = ringBuffer.get(sequence);
-            event.setSymbol(symbol);
-            event.setExchange(exchange);
-            event.setSnapshot(snapshot);
-            event.setExisting(existing);
-            event.setTimestamp(timestamp);
-            event.setMsTimestamp(msTimestamp);
-            event.setGuid(guid);
-            event.setBids(bids);
-            event.setAsks(asks);
+
+            // Заполняем основные поля
+            event.symbol = symbol;
+            event.exchange = exchange;
+            event.snapshot = snapshot;
+            event.existing = existing;
+            event.timestamp = timestamp;
+            event.msTimestamp = msTimestamp;
+            event.guid = guid;
+
+            // Обрабатываем биды и аски
+            event.bidCount = convertToLevelsArray(data.get("bids"), event.bids);
+            event.askCount = convertToLevelsArray(data.get("asks"), event.asks);
+
+            if (event.bidCount == 0 && event.askCount == 0) {
+                // Не публикуем пустое событие
+                return;
+            }
+
             logger.debug("QuoteEvent published for: {}", symbol);
         } finally {
             ringBuffer.publish(sequence);
@@ -292,32 +298,31 @@ public class AlorWebSocketClient extends WebSocketClient {
         logger.trace("Exiting processQuoteEvent()");
     }
 
-    // AlorWebSocketClient.java (только метод convertToLevels)
-    private List<QuoteLevel> convertToLevels(JsonNode levelsNode) {
-        logger.trace("Entering convertToLevels()");
+    // Добавляем новый метод convertToLevelsArray
+    private int convertToLevelsArray(JsonNode levelsNode, QuoteLevel[] destination) {
         if (levelsNode == null || !levelsNode.isArray() || levelsNode.isEmpty()) {
-            return Collections.emptyList();
+            return 0;
         }
 
-        List<QuoteLevel> levels = new ArrayList<>(levelsNode.size());
-        levelsNode.forEach(node -> {
-            QuoteLevel level = new QuoteLevel();
+        int size = Math.min(levelsNode.size(), destination.length);
+        for (int i = 0; i < size; i++) {
+            JsonNode node = levelsNode.get(i);
+            QuoteLevel level = destination[i];
 
-            // Парсим цену как BigDecimal из строки
             String priceStr = node.get("price").asText();
             try {
-                level.setPrice(new BigDecimal(priceStr));
+                level.price = new BigDecimal(priceStr);
             } catch (NumberFormatException e) {
                 logger.error("Error parsing price: {}", priceStr, e);
-                level.setPrice(BigDecimal.ZERO);
+                level.price = BigDecimal.ZERO;
             }
 
-            level.setVolume(node.get("volume").asLong());
-            levels.add(level);
-        });
-        logger.trace("Exiting convertToLevels() with {} levels", levels.size());
-        return levels;
+            level.volume = node.get("volume").asLong();
+        }
+
+        return size;
     }
+
 
     @Override
     public void onClose(int code, String reason, boolean remote) {

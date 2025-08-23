@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.stream.Collectors;
 
@@ -40,36 +42,35 @@ public class OrderBookService {
 
     private OrderBook mapDtoToEntity(OrderBookDTO dto) {
         OrderBook entity = new OrderBook();
-        entity.setSymbol(dto.getSymbol());
-        entity.setExchange(dto.getExchange());
-        entity.setTimestamp(dto.getTimestamp());
+        entity.setSymbol(dto.symbol);
+        entity.setExchange(dto.exchange);
+        entity.setTimestamp(dto.timestamp);
 
-        // Для бидов устанавливаем isBid = true
-        entity.setBids(dto.getBids().stream()
-                .map(levelDto -> {
-                    OrderBookLevel level = mapLevelDto(levelDto);
-                    level.setBid(true); // Устанавливаем флаг
-                    return level;
-                })
-                .collect(Collectors.toList()));
+        // Для бидов
+        List<OrderBookLevel> bidLevels = new ArrayList<>(dto.bidCount);
+        for (int i = 0; i < dto.bidCount; i++) {
+            LevelDTO levelDto = dto.bids[i];
+            OrderBookLevel level = new OrderBookLevel();
+            level.setPrice(levelDto.price);
+            level.setVolume(levelDto.volume);
+            level.setBid(true);
+            bidLevels.add(level);
+        }
+        entity.setBids(bidLevels);
 
-        // Для асков устанавливаем isBid = false
-        entity.setAsks(dto.getAsks().stream()
-                .map(levelDto -> {
-                    OrderBookLevel level = mapLevelDto(levelDto);
-                    level.setBid(false); // Устанавливаем флаг
-                    return level;
-                })
-                .collect(Collectors.toList()));
+        // Для асков
+        List<OrderBookLevel> askLevels = new ArrayList<>(dto.askCount);
+        for (int i = 0; i < dto.askCount; i++) {
+            LevelDTO levelDto = dto.asks[i];
+            OrderBookLevel level = new OrderBookLevel();
+            level.setPrice(levelDto.price);
+            level.setVolume(levelDto.volume);
+            level.setBid(false);
+            askLevels.add(level);
+        }
+        entity.setAsks(askLevels);
 
         return entity;
     }
 
-    private OrderBookLevel mapLevelDto(LevelDTO dto) {
-        OrderBookLevel level = new OrderBookLevel();
-        level.setPrice(dto.getPrice());
-        level.setVolume(dto.getVolume());
-        // Поле isBid будет установлено в mapDtoToEntity
-        return level;
-    }
 }

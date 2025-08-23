@@ -34,26 +34,32 @@ public class OutOrderBookServise {
         }
 
         OrderBookDTO dto = new OrderBookDTO();
-        dto.setSymbol(orderBook.getSymbol());
-        dto.setExchange(orderBook.getExchange());
-        dto.setTimestamp(orderBook.getTimestamp());
+        dto.symbol = orderBook.getSymbol(); // Прямое присваивание полю
+        dto.exchange = orderBook.getExchange(); // Прямое присваивание полю
+        dto.timestamp = orderBook.getTimestamp(); // Прямое присваивание полю
 
-        // Используем предварительно отфильтрованные уровни
-        dto.setBids(orderBook.getBidLevels().stream()
-                .map(this::convertLevelToDTO)
-                .collect(Collectors.toList()));
+        // Преобразуем списки в массивы
+        List<OrderBookLevel> bidLevels = orderBook.getBidLevels();
+        dto.bids = new LevelDTO[bidLevels.size()];
+        dto.bidCount = bidLevels.size();
+        for (int i = 0; i < bidLevels.size(); i++) {
+            dto.bids[i] = convertLevelToDTO(bidLevels.get(i));
+        }
 
-        dto.setAsks(orderBook.getAskLevels().stream()
-                .map(this::convertLevelToDTO)
-                .collect(Collectors.toList())); // Исправлено на collect
+        List<OrderBookLevel> askLevels = orderBook.getAskLevels();
+        dto.asks = new LevelDTO[askLevels.size()];
+        dto.askCount = askLevels.size();
+        for (int i = 0; i < askLevels.size(); i++) {
+            dto.asks[i] = convertLevelToDTO(askLevels.get(i));
+        }
 
         return dto;
     }
 
     private LevelDTO convertLevelToDTO(OrderBookLevel level) {
         LevelDTO dto = new LevelDTO();
-        dto.setPrice(level.getPrice());
-        dto.setVolume(level.getVolume());
+        dto.price = level.getPrice(); // Прямое присваивание полю
+        dto.volume = level.getVolume(); // Прямое присваивание полю
         return dto;
     }
 }
