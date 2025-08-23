@@ -3,6 +3,7 @@ package gobov.roma.russia.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -17,7 +18,7 @@ public class OrderBook {
 
     private String symbol;
     private String exchange;
-    private LocalDateTime timestamp;
+    private Instant timestamp;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "order_book_id")

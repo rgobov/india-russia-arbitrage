@@ -2,6 +2,7 @@ package gobov.roma.russia.dto;
 
 import lombok.Data;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -9,7 +10,7 @@ import java.util.List;
 public class OrderBookDTO {
     private String symbol;
     private String exchange;
-    private LocalDateTime timestamp;
+    private Instant timestamp;
     private List<LevelDTO> bids;
     private List<LevelDTO> asks;
 }

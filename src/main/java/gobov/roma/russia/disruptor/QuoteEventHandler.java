@@ -9,8 +9,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -35,10 +33,7 @@ public class QuoteEventHandler implements EventHandler<QuoteEvent> {
             OrderBookDTO dto = new OrderBookDTO();
             dto.setSymbol(event.getSymbol());
             dto.setExchange(event.getExchange());
-            dto.setTimestamp(LocalDateTime.ofInstant(
-                    Instant.ofEpochMilli(event.getMsTimestamp()),
-                    ZoneId.systemDefault()
-            ));
+            dto.setTimestamp(Instant.ofEpochMilli(event.getMsTimestamp()));
 
             // Маппинг уровней с конвертацией в BigDecimal
             dto.setBids(mapLevels(event.getBids()));
