@@ -29,6 +29,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import org.springframework.beans.factory.annotation.Value;
+
 
 @Component
 public class AlorWebSocketClient extends WebSocketClient {
@@ -46,13 +48,12 @@ public class AlorWebSocketClient extends WebSocketClient {
     private ScheduledFuture<?> pingTask;
     private ScheduledFuture<?> cancelCheckTask;
 
-    @org.springframework.beans.factory.annotation.Value("${alor.subscription.cancel-check-interval:2000}")
+    @Value("${alor.subscription.cancel-check-interval:2000}")
     private long checkCancelIntervalMs;
 
-    @org.springframework.beans.factory.annotation.Value("classpath:config.properties")
+    @Value("classpath:config.properties")
     private Resource configResource;
 
-    private Timer cancelCheckTimer;
     private static final int MAX_RECONNECT_ATTEMPTS = 5;
     private static final long RECONNECT_DELAY_MS = 10000;
 
@@ -62,7 +63,6 @@ public class AlorWebSocketClient extends WebSocketClient {
             Disruptor<QuoteEvent> disruptor,
             ObjectMapper mapper,
             AlorProperties alorProperties,
-            ExecutorService virtualThreadExecutor,
             ScheduledExecutorService scheduledExecutor) {
 
         super(URI.create(alorProperties.getWebsocket().getUrl()));
@@ -139,7 +139,7 @@ public class AlorWebSocketClient extends WebSocketClient {
             unsubscribeAll(token);
         }
 
-        if (shouldSubscribe() && instrumentGroups != null && !instrumentGroups.isEmpty()) {
+        if (shouldSubscribe() && !instrumentGroups.isEmpty()) {
             instrumentGroups.forEach((symbol, group) -> {
                 String guid = UUID.randomUUID().toString();
                 activeSubscriptions.put(symbol, guid);
@@ -319,7 +319,6 @@ public class AlorWebSocketClient extends WebSocketClient {
         return size;
     }
 
-
     @Override
     public void onClose(int code, String reason, boolean remote) {
         instrumentGroups.clear();
@@ -374,7 +373,6 @@ public class AlorWebSocketClient extends WebSocketClient {
         logger.trace("Entering shutdown()");
         logger.info("Shutting down WebSocket client");
         try {
-            if (cancelCheckTimer != null) cancelCheckTimer.cancel();
             reconnectExecutor.shutdownNow();
             if (!activeSubscriptions.isEmpty()) {
                 unsubscribeAll(tokenManager.getAccessToken());
