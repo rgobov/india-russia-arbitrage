@@ -34,7 +34,6 @@ import java.util.concurrent.TimeUnit;
 public class AlorWebSocketClient extends WebSocketClient {
 
     private final TokenManager tokenManager;
-    private final Disruptor<QuoteEvent> disruptor;
     private final RingBuffer<QuoteEvent> ringBuffer;
     private final ObjectMapper mapper;
     private final AlorProperties alorProperties;
@@ -43,7 +42,6 @@ public class AlorWebSocketClient extends WebSocketClient {
     private final Map<String, String> activeSubscriptions = new ConcurrentHashMap<>(); // symbol -> guid
     private final Map<String, String> instrumentGroups = new ConcurrentHashMap<>(); // symbol -> group
     private static final Logger logger = LoggerFactory.getLogger(AlorWebSocketClient.class);
-    private final ExecutorService virtualThreadExecutor;
     private final ScheduledExecutorService scheduledExecutor;
     private ScheduledFuture<?> pingTask;
     private ScheduledFuture<?> cancelCheckTask;
@@ -69,11 +67,9 @@ public class AlorWebSocketClient extends WebSocketClient {
 
         super(URI.create(alorProperties.getWebsocket().getUrl()));
         this.tokenManager = tokenManager;
-        this.disruptor = disruptor;
         this.mapper = mapper;
         this.alorProperties = alorProperties;
         this.ringBuffer = disruptor.getRingBuffer();
-        this.virtualThreadExecutor = virtualThreadExecutor;
         this.scheduledExecutor = scheduledExecutor;
 
         addHeader("Origin", "https://alor.ru");
