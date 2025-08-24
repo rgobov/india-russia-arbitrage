@@ -11,7 +11,7 @@ public final class OrderBookDTO {
     public int bidCount;
     public int askCount;
 
-    public OrderBookDTO() {};
+    public OrderBookDTO() {}
 
     public OrderBookDTO(int maxLevels) {
         bids = new LevelDTO[maxLevels];
