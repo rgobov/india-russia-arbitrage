@@ -26,7 +26,7 @@ public class QuoteEventHandler implements EventHandler<QuoteEvent> {
     }
 
     @Override
-    public void onEvent(QuoteEvent event, long sequence, boolean endOfBatch) {
+    public final void onEvent(QuoteEvent event, long sequence, boolean endOfBatch) {
         try {
             if (event == null || event.bidCount == 0 && event.askCount == 0) return;
 
