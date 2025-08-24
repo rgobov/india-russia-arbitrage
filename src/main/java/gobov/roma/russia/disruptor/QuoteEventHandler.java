@@ -59,6 +59,10 @@ public class QuoteEventHandler implements EventHandler<QuoteEvent> {
             bid.price = eventBid.price;
             bid.volume = eventBid.volume;
         }
+        // Очищаем неиспользуемые уровни бидов
+        for (int i = event.bidCount; i < dto.bids.length; i++) {
+            dto.bids[i].clear();
+        }
 
         // Обновляем аски
         dto.askCount = event.askCount;
@@ -67,6 +71,10 @@ public class QuoteEventHandler implements EventHandler<QuoteEvent> {
             LevelDTO eventAsk = event.asks[i];
             ask.price = eventAsk.price;
             ask.volume = eventAsk.volume;
+        }
+        // Очищаем неиспользуемые уровни асков
+        for (int i = event.askCount; i < dto.asks.length; i++) {
+            dto.asks[i].clear();
         }
     }
 }

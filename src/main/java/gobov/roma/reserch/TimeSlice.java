@@ -13,8 +13,4 @@ public class TimeSlice {
     public OrderBookDTO getOrCreateOrderBook(String symbol) {
         return timeSlice.computeIfAbsent(symbol, k -> new OrderBookDTO(MAX_LEVELS));
     }
-
-    public OrderBookDTO getOrderBook(String symbol) {
-        return timeSlice.get(symbol);
-    }
 }
