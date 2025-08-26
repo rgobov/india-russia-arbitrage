@@ -4,6 +4,7 @@ import gobov.roma.india.shoonya.controllers.QuoteController; // Исправле
 import gobov.roma.india.shoonya.entity.QuoteEntity; // Исправлен импорт
 import gobov.roma.india.shoonya.mapper.QuoteMapper; // Исправлен импорт
 import gobov.roma.india.shoonya.repository.QuoteRepository; // Исправлен импорт
+import gobov.roma.reserch.TimeSliceDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,11 +21,13 @@ public class QuoteService {
 
     private final QuoteRepository quoteRepository;
     private final QuoteMapper quoteMapper;
+    private final TimeSliceDTO timeSliceDTO;
 
     @Autowired
-    public QuoteService(QuoteRepository quoteRepository, QuoteMapper quoteMapper) {
+    public QuoteService(QuoteRepository quoteRepository, QuoteMapper quoteMapper, TimeSliceDTO timeSliceDTO) {
         this.quoteRepository = quoteRepository;
         this.quoteMapper = quoteMapper;
+        this.timeSliceDTO = timeSliceDTO;
     }
 
     @Transactional
@@ -37,4 +40,24 @@ public class QuoteService {
         logger.info("Сохранено {} котировок", savedEntities.size());
         return savedEntities.size();
     }
+
+    public void saveToMap(List<QuoteController.Quote> quotes){
+        quotes.forEach((quote) -> {
+            QuoteController.Quote quoteFromMap = timeSliceDTO.getOrCreateOrderBookIndia(quote.getSymbol());
+            quoteFromMap.setBidPrice(quote.getBidPrice());
+            quoteFromMap.setAskPrice(quote.getAskPrice());
+            quoteFromMap.setBidQty(quote.getBidQty());
+            quoteFromMap.setAskQty(quote.getAskQty());
+            if(quote.getSymbol() == null) {
+                quoteFromMap.setSymbol(quote.getSymbol());
+                quoteFromMap.setExchange(quote.getExchange());
+                quoteFromMap.setOpType(quote.getOpType());
+                quoteFromMap.setStrikePrice(quote.getStrikePrice());
+                quoteFromMap.setExpDate(quote.getExpDate());
+            }
+
+        });
+    }
+
+
 }

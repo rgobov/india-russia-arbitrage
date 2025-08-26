@@ -42,10 +42,10 @@ public class QuoteEntity {
     @Column(name = "timestamp", nullable = false, updatable = false)
     private Instant timestamp = Instant.now();
 
-    @PrePersist
-    protected void onPersist() {
-        this.timestamp = Instant.now();
-    }
+//    @PrePersist
+//    protected void onPersist() {
+//        this.timestamp = Instant.now();
+//    }
 
     // Конструкторы
     public QuoteEntity() {}

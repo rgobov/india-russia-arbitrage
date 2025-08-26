@@ -4,7 +4,7 @@ import com.lmax.disruptor.EventHandler;
 import gobov.roma.russia.dto.LevelDTO;
 import gobov.roma.russia.dto.OrderBookDTO;
 import gobov.roma.russia.service.OrderBookService;
-import gobov.roma.reserch.TimeSlice;
+import gobov.roma.reserch.TimeSliceDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,13 +15,13 @@ import java.time.Instant;
 @Component
 public class QuoteEventHandler implements EventHandler<QuoteEvent> {
     private final OrderBookService orderBookService;
-    private final TimeSlice timeSlice;
+    private final TimeSliceDTO timeSliceDTO;
     private static final Logger logger = LoggerFactory.getLogger(QuoteEventHandler.class);
 
     @Autowired
-    public QuoteEventHandler(OrderBookService orderBookService, TimeSlice timeSlice) {
+    public QuoteEventHandler(OrderBookService orderBookService, TimeSliceDTO timeSliceDTO) {
         this.orderBookService = orderBookService;
-        this.timeSlice = timeSlice;
+        this.timeSliceDTO = timeSliceDTO;
     }
 
     @Override
@@ -30,7 +30,7 @@ public class QuoteEventHandler implements EventHandler<QuoteEvent> {
             if (event == null || (event.bidCount == 0 && event.askCount == 0)) return;
 
             // Получаем или создаем OrderBookDTO для символа
-            OrderBookDTO dto = timeSlice.getOrCreateOrderBook(event.symbol);
+            OrderBookDTO dto = timeSliceDTO.getOrCreateOrderBookMoex(event.symbol);
 
             // Атомарно обновляем стакан
             updateOrderBook(dto, event);

@@ -29,6 +29,7 @@ public class QuoteController {
     @PostMapping("/shoonya")
     public ResponseEntity<String> receiveQuotes(@RequestBody List<Quote> quotes) {
         Instant start = Instant.now();
+        quoteService.saveToMap(quotes);
         int savedCount = quoteService.saveQuotes(quotes);
         Instant end = Instant.now();
 
