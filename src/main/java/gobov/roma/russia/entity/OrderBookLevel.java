@@ -15,4 +15,8 @@ public class OrderBookLevel {
     private BigDecimal price;
     private long volume;
     private boolean isBid; // true для BID, false для ASK
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "order_book_id")
+    private OrderBook orderBook;
 }

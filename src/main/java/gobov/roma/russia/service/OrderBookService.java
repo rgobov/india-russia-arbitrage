@@ -1,5 +1,6 @@
 package gobov.roma.russia.service;
 
+import gobov.roma.reserch.TimeSliceDTO;
 import gobov.roma.russia.dto.OrderBookDTO;
 import gobov.roma.russia.dto.LevelDTO;
 import gobov.roma.russia.entity.OrderBook;
@@ -19,26 +20,31 @@ public class OrderBookService {
 
     private final OrderBookRepository orderBookRepository;
     private final ExecutorService virtualThreadExecutor;
+    private final TimeSliceDTO timeSliceDTO;
 
     @Autowired
     public OrderBookService(
             OrderBookRepository orderBookRepository,
-            ExecutorService virtualThreadExecutor) {
+            ExecutorService virtualThreadExecutor, TimeSliceDTO timeSliceDTO) {
         this.orderBookRepository = orderBookRepository;
         this.virtualThreadExecutor = virtualThreadExecutor;
+        this.timeSliceDTO = timeSliceDTO;
     }
-
 
     public void saveOrderBook(OrderBookDTO dto) {
-       saveOrderBookTransactional(dto);
+        timeSliceDTO.updateMoexOrderBook(dto);
     }
-    @Transactional
-    public void saveOrderBookTransactional(OrderBookDTO dto) {
-        virtualThreadExecutor.execute(() -> {
-            OrderBook orderBook = mapDtoToEntity(dto);
-            orderBookRepository.save(orderBook);
-        });
-    }
+
+//    public void saveOrderBook(OrderBookDTO dto) {
+//       saveOrderBookTransactional(dto);
+//    }
+//    @Transactional
+//    public void saveOrderBookTransactional(OrderBookDTO dto) {
+//        virtualThreadExecutor.execute(() -> {
+//            OrderBook orderBook = mapDtoToEntity(dto);
+//            orderBookRepository.save(orderBook);
+//        });
+//    }
 
     private OrderBook mapDtoToEntity(OrderBookDTO dto) {
         OrderBook entity = new OrderBook();

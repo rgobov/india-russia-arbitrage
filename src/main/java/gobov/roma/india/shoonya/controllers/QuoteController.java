@@ -2,6 +2,8 @@ package gobov.roma.india.shoonya.controllers;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import gobov.roma.india.shoonya.service.QuoteService; // Исправлен импорт
+import gobov.roma.reserch.TimeSliceDTO;
+import gobov.roma.reserch.TimeSliceService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
@@ -22,8 +24,11 @@ public class QuoteController {
 
     private final QuoteService quoteService;
 
-    public QuoteController(QuoteService quoteService) {
+    private final TimeSliceService timeSliceService;
+
+    public QuoteController(QuoteService quoteService, TimeSliceDTO timeSliceDTO, TimeSliceService timeSliceService) {
         this.quoteService = quoteService;
+        this.timeSliceService = timeSliceService;
     }
 
     @PostMapping("/shoonya")
@@ -31,6 +36,7 @@ public class QuoteController {
         Instant start = Instant.now();
         quoteService.saveToMap(quotes);
         int savedCount = quoteService.saveQuotes(quotes);
+        timeSliceService.createSnapshot();
         Instant end = Instant.now();
 
         long durationMs = end.toEpochMilli() - start.toEpochMilli();

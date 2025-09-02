@@ -1,5 +1,6 @@
 package gobov.roma.india.shoonya.entity;
 
+import gobov.roma.reserch.TimeSlice;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -41,6 +42,10 @@ public class QuoteEntity {
 
     @Column(name = "timestamp", nullable = false, updatable = false)
     private Instant timestamp = Instant.now();
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "time_slice_id")
+    private TimeSlice timeSlice;
 
 //    @PrePersist
 //    protected void onPersist() {
@@ -146,6 +151,13 @@ public class QuoteEntity {
 
     public Instant getTimestamp() {
         return timestamp;
+    }
+    public TimeSlice getTimeSlice() {
+        return timeSlice;
+    }
+
+    public void setTimeSlice(TimeSlice timeSlice) {
+        this.timeSlice = timeSlice;
     }
 
     @Override

@@ -10,7 +10,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class TimeSliceDTO {
 
     // Блок обработки котировок Московской биржи.
-    private final ConcurrentHashMap<String, OrderBookDTO> timeSliceMOEX = new ConcurrentHashMap<>(1000);
+    public final ConcurrentHashMap<String, OrderBookDTO> timeSliceMOEX = new ConcurrentHashMap<>(1000);
     private static final int MAX_LEVELS_MOEX = 10;
 
     public OrderBookDTO getOrCreateOrderBookMoex(String symbol) {
@@ -18,11 +18,17 @@ public class TimeSliceDTO {
     }
 
     // Блок обработки котировок Индийских бирж.
-    private final ConcurrentHashMap<String, QuoteController.Quote> timeSliceIndia = new ConcurrentHashMap<>(100);
+    public final ConcurrentHashMap<String, QuoteController.Quote> timeSliceIndia = new ConcurrentHashMap<>(100);
 
     public QuoteController.Quote getOrCreateOrderBookIndia(String symbol) {
         return timeSliceIndia.computeIfAbsent(symbol, k -> new QuoteController.Quote());
     }
 
+    public void updateMoexOrderBook(OrderBookDTO newData) {
+        timeSliceMOEX.put(newData.symbol, newData);
+    }
 
+    public void updateIndiaQuote(String symbol, QuoteController.Quote quote) {
+        timeSliceIndia.put(symbol, quote);
+    }
 }

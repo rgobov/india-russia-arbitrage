@@ -3,7 +3,6 @@ package gobov.roma.russia.disruptor;
 import com.lmax.disruptor.EventHandler;
 import gobov.roma.russia.dto.LevelDTO;
 import gobov.roma.russia.dto.OrderBookDTO;
-import gobov.roma.russia.service.OrderBookService;
 import gobov.roma.reserch.TimeSliceDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,13 +13,11 @@ import java.time.Instant;
 
 @Component
 public class QuoteEventHandler implements EventHandler<QuoteEvent> {
-    private final OrderBookService orderBookService;
     private final TimeSliceDTO timeSliceDTO;
     private static final Logger logger = LoggerFactory.getLogger(QuoteEventHandler.class);
 
     @Autowired
-    public QuoteEventHandler(OrderBookService orderBookService, TimeSliceDTO timeSliceDTO) {
-        this.orderBookService = orderBookService;
+    public QuoteEventHandler(TimeSliceDTO timeSliceDTO) {
         this.timeSliceDTO = timeSliceDTO;
     }
 
@@ -35,8 +32,7 @@ public class QuoteEventHandler implements EventHandler<QuoteEvent> {
             // Атомарно обновляем стакан
             updateOrderBook(dto, event);
 
-            // Для сервиса сохраняем ссылку на актуальный объект
-            orderBookService.saveOrderBook(dto);
+            logger.debug("Updated order book for {} in TimeSliceDTO", event.symbol);
         } catch (Exception e) {
             logger.error("Ошибка обработки события", e);
         } finally {

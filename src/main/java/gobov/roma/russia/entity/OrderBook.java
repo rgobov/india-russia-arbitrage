@@ -1,10 +1,10 @@
 package gobov.roma.russia.entity;
 
+import gobov.roma.reserch.TimeSlice;
 import jakarta.persistence.*;
 import lombok.Data;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -20,23 +20,13 @@ public class OrderBook {
     private String exchange;
     private Instant timestamp;
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "order_book_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "time_slice_id")
+    private TimeSlice timeSlice;
+
+    @OneToMany(mappedBy = "orderBook", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderBookLevel> bids;
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "order_book_id")
+    @OneToMany(mappedBy = "orderBook", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderBookLevel> asks;
-
-    public List<OrderBookLevel> getBidLevels() {
-        return bids.stream()
-                .filter(OrderBookLevel::isBid)
-                .collect(Collectors.toList());
     }
-
-    public List<OrderBookLevel> getAskLevels() {
-        return asks.stream()
-                .filter(level -> !level.isBid())
-                .collect(Collectors.toList());
-    }
-}
